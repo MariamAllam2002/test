@@ -7,7 +7,8 @@ public class Main {
         System.out.println("Hello world!");
         sendNotificationWorker.startWorker();
         Vertx vertx= Vertx.vertx();
-        vertx.deployVerticle(new firstverticle());
-
+      
+        vertx.deployVerticle(new httpServerVerticle());
+        vertx.deployVerticle(new temporalVerticle());
     }
 }

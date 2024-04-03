@@ -1,20 +1,22 @@
 package com.example;
+
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 
-public class firstverticle extends AbstractVerticle {
+public class httpServerVerticle extends AbstractVerticle {
     @Override
     public void start() throws Exception {
         System.out.println("hello");
         HttpServer server = vertx.createHttpServer();
-        
+      
         Router router = Router.router(vertx);
 
     //     router.route().handler(ctx -> {
@@ -29,20 +31,9 @@ public class firstverticle extends AbstractVerticle {
                System.out.println("in");
             
                String notificationBody = ctx.getBodyAsString();
+               EventBus eb = vertx.eventBus();
+               eb.send("temporal-verticle-address", notificationBody );
 
-               System.out.println("Received notification body:");
-               System.out.println(notificationBody);
-   
-               WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-               WorkflowClient client = WorkflowClient.newInstance(service);
-              
-               
-               WorkflowOptions options = WorkflowOptions.newBuilder()
-                  .setTaskQueue(shared.SEND_NOTIFICATION_TASK_QUEUE).build();
-
-              // Create the workflow client stub. It is used to start our workflow execution.
-               sendNotificationWorkflow workflow = client.newWorkflowStub(sendNotificationWorkflow.class, options);
-               workflow.executeWorkflow(notificationBody);
         
                ctx.response().setStatusCode(200).end("Notification body received successfully");
            });
